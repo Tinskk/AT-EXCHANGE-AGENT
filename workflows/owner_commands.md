@@ -14,8 +14,8 @@ Messages from a number listed in `OWNER_WHATSAPP_NUMBERS` are routed to a
 second Claude agent (`app/owner_agent.py`), separate from the customer-facing
 one — it has its own system prompt and its own tool set (`app/owner_tools.py`:
 `list_open_leads`, `get_lead`, `confirm_lead`, `complete_lead`, `reject_lead`,
-`get_rates`, `set_rate`, `get_payment_methods`, `set_fiat_receiving_details`,
-`set_crypto_receiving_address`). You talk to it the same way you'd talk to a
+`get_rates`, `set_rate`, `message_customer`, `get_payment_methods`,
+`set_fiat_receiving_details`, `set_crypto_receiving_address`). You talk to it the same way you'd talk to a
 staff member over chat; it looks up the real lead before acting, and always
 tells you exactly what it did.
 
@@ -34,6 +34,8 @@ tool names or say things like "I called confirm_lead."
 - "what's our current payment info?"
 - "set our bank account to Access Bank, 0123456789, AT Exchange Ltd"
 - "set our USDT wallet to TXyz... on TRC20"
+- "tell LD7 the updated USDT address is TXyz..."
+- "ask the Lagos customer for their email address"
 
 **Confirming a lead and completing it are two different steps.** Confirming
 just tells the customer their request is being processed. Completing means
@@ -66,6 +68,19 @@ If it had been a buy instead, the customer would get: `✅ Your USDT is on its w
 If your description is ambiguous, e.g. two open USDT leads, the agent will
 describe both in plain terms and ask which one you mean rather than guessing.
 You'd reply with whichever one it is (a lead ID, or just "the Lagos one").
+
+## Relaying a message to a customer directly
+
+You can also just tell the agent what to say to a customer, e.g. "tell LD7
+the updated USDT address is TXyz..." or "ask the Lagos customer for their
+email." It identifies the recipient the same way as everything else (a lead
+ID, or by looking up open leads if you describe it instead), then sends it.
+
+For anything containing a wallet address, account number, or amount, it
+copies that exactly from what you typed (never retypes it from memory) and
+reads the full message back to you for a yes before sending, same caution as
+changing a stored payment detail, since a single wrong character sends
+someone's money nowhere recoverable. For anything else, it just sends it.
 
 ## Edge cases
 

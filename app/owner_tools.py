@@ -116,6 +116,29 @@ TOOL_DEFS = [
         },
     },
     {
+        "name": "message_customer",
+        "description": (
+            "Send a message to a customer on the owner's behalf, in their own words or "
+            "close to it, e.g. relaying an updated wallet address, answering something "
+            "the owner wants to handle personally, or any other one-off message the "
+            "owner asks you to pass along. Prefer lead_id to identify who it goes to "
+            "(look it up via list_open_leads/get_lead first if the owner describes the "
+            "lead rather than giving the exact ID, same golden rule as every other "
+            "action). Only use customer_phone directly if there's no associated lead. "
+            "Never guess a phone number that wasn't confirmed via a lead lookup or "
+            "typed by the owner."
+        ),
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "lead_id": {"type": "string", "description": "Preferred way to identify the customer, resolves to their phone automatically."},
+                "customer_phone": {"type": "string", "description": "Only use if there's no lead_id to resolve, the exact number as given."},
+                "message": {"type": "string", "description": "The exact message to send to the customer."},
+            },
+            "required": ["message"],
+        },
+    },
+    {
         "name": "set_crypto_receiving_address",
         "description": "Set our wallet address for receiving a crypto asset when a customer sells it to us (single-word asset name, e.g. 'BTC', 'USDT').",
         "input_schema": {
@@ -183,6 +206,19 @@ def dispatch(name: str, tool_input: dict) -> dict:
     if name == "set_rate":
         result = rates.set_rate(tool_input["asset"], tool_input["buy"], tool_input["sell"])
         return {"ok": True, "rate": result}
+
+    if name == "message_customer":
+        phone = tool_input.get("customer_phone")
+        lead_id = tool_input.get("lead_id")
+        if lead_id:
+            lead = store.get_lead(lead_id)
+            if not lead:
+                return {"ok": False, "error": f"No lead found for '{lead_id}'."}
+            phone = lead["customer_phone"]
+        if not phone:
+            return {"ok": False, "error": "Need either a lead_id or a customer_phone to know who to message."}
+        whatsapp_client.send_text(phone, tool_input["message"])
+        return {"ok": True, "sent_to": phone, "message": tool_input["message"]}
 
     if name == "get_payment_methods":
         return {"payment_methods": payment_methods.list_payment_methods()}
