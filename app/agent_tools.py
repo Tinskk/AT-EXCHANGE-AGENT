@@ -22,7 +22,7 @@ TOOL_DEFS = [
         "name": "get_rate",
         "description": (
             "Look up the current buy/sell rate for an asset (a crypto symbol like "
-            "BTC/USDT/ETH, or a gift card brand like 'Amazon Gift Card'). Always "
+            "BTC/USDT/SOL, or a gift card brand like 'Amazon Gift Card'). Always "
             "call this before quoting any rate — never state one from memory. If "
             "it returns a TBD/placeholder rate, tell the customer the team will "
             "confirm the exact rate for their request."
