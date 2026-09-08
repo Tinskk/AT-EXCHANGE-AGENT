@@ -1,0 +1,29 @@
+# Secrets — never commit
+.env
+credentials.json
+token.json
+*.pem
+
+# Intermediates — regenerated as needed
+.tmp/
+
+# App runtime data — ephemeral, never commit
+app/data/*.db
+
+# Python
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Local tooling artifacts
+.claude/
+*.log

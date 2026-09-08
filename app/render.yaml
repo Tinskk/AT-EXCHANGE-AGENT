@@ -1,0 +1,28 @@
+services:
+  - type: web
+    name: at-exchange-whatsapp-agent
+    runtime: python
+    rootDir: app
+    plan: starter
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    envVars:
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: ANTHROPIC_MODEL
+        value: claude-sonnet-5
+      - key: WHATSAPP_ACCESS_TOKEN
+        sync: false
+      - key: WHATSAPP_PHONE_NUMBER_ID
+        sync: false
+      - key: WHATSAPP_APP_SECRET
+        sync: false
+      - key: WHATSAPP_VERIFY_TOKEN
+        sync: false
+      - key: GRAPH_API_VERSION
+        value: v21.0
+      - key: OWNER_WHATSAPP_NUMBERS
+        sync: false
+      - key: BUSINESS_NAME
+        value: AT Exchange

@@ -1,0 +1,10 @@
+{
+  "BTC": { "buy": "TBD", "sell": "TBD" },
+  "USDT": { "buy": "TBD", "sell": "TBD" },
+  "ETH": { "buy": "TBD", "sell": "TBD" },
+  "Amazon Gift Card": { "buy": "TBD", "sell": "TBD" },
+  "Steam Gift Card": { "buy": "TBD", "sell": "TBD" },
+  "iTunes Gift Card": { "buy": "TBD", "sell": "TBD" },
+  "Zelle": { "buy": "TBD", "sell": "TBD" },
+  "PayPal": { "buy": "TBD", "sell": "TBD" }
+}
