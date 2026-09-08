@@ -1,5 +1,5 @@
 {
-  "_status": "TEST MODE: crypto receiving addresses below are FAKE placeholders for testing the conversation flow only. They are deliberately invalid (no wallet can send to them) so no real funds can be lost. Replace every one with a real address in receive_crypto_for_sells before accepting a real customer transaction.",
+  "_status": "SOL receiving address is still a FAKE test placeholder (deliberately invalid, no wallet can send to it). BTC, USDT, and ETH below are real. Replace the SOL one before accepting a real SOL sell.",
   "receive_fiat_for_buys": {
     "method": "bank transfer",
     "bank_name": "MONIEPOINT",
@@ -7,9 +7,9 @@
     "account_number": "01234567890"
   },
   "receive_crypto_for_sells": {
-    "BTC": { "network": "Bitcoin mainnet (TEST PLACEHOLDER, not a real address)", "address": "TEST-FAKE-ADDRESS-NOT-REAL-BTC-0001" },
-    "USDT": { "network": "TRC20 (TEST PLACEHOLDER, confirm real network before going live)", "address": "TEST-FAKE-ADDRESS-NOT-REAL-USDT-0001" },
-    "ETH": { "network": "Ethereum mainnet (TEST PLACEHOLDER, not a real address)", "address": "TEST-FAKE-ADDRESS-NOT-REAL-ETH-0001" },
+    "BTC": { "network": "Bitcoin mainnet", "address": "1NVgrv3w9D6piCR7aUVbzxgXmzVWQofwry" },
+    "USDT": { "network": "TRC20", "address": "TPcfXvKFyVBkN98Hk5WwyX1zhNQFX1fWuM" },
+    "ETH": { "network": "Ethereum mainnet", "address": "0x92d212e9d3b4b5d48c7d5ffb698b5108a177141e" },
     "SOL": { "network": "Solana (TEST PLACEHOLDER, not a real address)", "address": "TEST-FAKE-ADDRESS-NOT-REAL-SOL-0001" }
   },
   "receive_gift_cards_for_sells": {
