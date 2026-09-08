@@ -8,9 +8,8 @@
   "receive_crypto_for_sells": {
     "BTC": { "network": "TBD", "address": "TBD" },
     "USDT": { "network": "TBD (e.g. TRC20 or ERC20 - confirm before sending)", "address": "TBD" },
-    
+    "ETH": { "network": "TBD", "address": "TBD" },
     "SOL": { "network": "Solana", "address": "TBD" }
-    
   },
   "receive_gift_cards_for_sells": {
     "method": "Send the gift card code and a clear photo of the card (front and back, code visible) in this chat."

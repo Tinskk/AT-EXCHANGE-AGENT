@@ -4,7 +4,7 @@ AT Exchange trades two things only: **cryptocurrency** and **gift cards**.
 
 ## Cryptocurrency
 
-TBD, confirm the exact list of coins/tokens traded (e.g. BTC, USDT, SOL,
+TBD, confirm the exact list of coins/tokens traded (e.g. BTC, USDT, ETH, SOL,
 others) and any network restrictions (e.g. "USDT on TRC20 only").
 
 ## Gift Cards
