@@ -1,5 +1,4 @@
 {
-  "_status": "SOL receiving address is still a FAKE test placeholder (deliberately invalid, no wallet can send to it). BTC, USDT, and ETH below are real. Replace the SOL one before accepting a real SOL sell.",
   "receive_fiat_for_buys": {
     "method": "bank transfer",
     "bank_name": "MONIEPOINT",
@@ -10,7 +9,7 @@
     "BTC": { "network": "Bitcoin mainnet", "address": "1NVgrv3w9D6piCR7aUVbzxgXmzVWQofwry" },
     "USDT": { "network": "TRC20", "address": "TPcfXvKFyVBkN98Hk5WwyX1zhNQFX1fWuM" },
     "ETH": { "network": "Ethereum mainnet", "address": "0x92d212e9d3b4b5d48c7d5ffb698b5108a177141e" },
-    "SOL": { "network": "Solana (TEST PLACEHOLDER, not a real address)", "address": "TEST-FAKE-ADDRESS-NOT-REAL-SOL-0001" }
+    "SOL": { "network": "Solana", "address": "m3YCh4GjdVuHw8VWNfEQac3jMsQQKNCuaDxkgxi1HXa" }
   },
   "receive_gift_cards_for_sells": {
     "method": "Send the gift card code and a clear photo of the card (front and back, code visible) in this chat."
