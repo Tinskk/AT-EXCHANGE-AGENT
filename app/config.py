@@ -52,6 +52,7 @@ BUSINESS_NAME = os.getenv("BUSINESS_NAME", "AT Exchange")
 MAX_HISTORY_TURNS = 20
 KNOWLEDGE_BASE_DIR = ROOT / "knowledge_base"
 RATES_PATH = ROOT / "data" / "rates.json"
+PAYMENT_METHODS_PATH = ROOT / "data" / "payment_methods.json"
 
 # Anchored to app/ by default so it's correct regardless of the process's cwd
 # (Render's rootDir, local `cd app && uvicorn ...`, etc.). Override with an

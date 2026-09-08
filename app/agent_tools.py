@@ -1,16 +1,18 @@
 """Tool definitions exposed to Claude, and the dispatcher that executes them.
 
-Kept deliberately minimal: four tools, each backed by real data (rates.json,
-the leads table, or the knowledge base) so the model never has to invent a
-rate, a policy, or a transaction status. The agent never moves money or
-confirms a transaction itself — create_transaction_lead only ever creates a
-pending record and pages the owner; a human always makes the actual call.
+Kept deliberately minimal, each backed by real data (rates.json,
+payment_methods.json, the leads table, or the knowledge base) so the model
+never has to invent a rate, a payment destination, a policy, or a
+transaction status. The agent never moves money or confirms a transaction
+itself — create_transaction_lead only ever creates a pending record and
+pages the owner; a human always makes the actual call.
 """
 
 from __future__ import annotations
 
 import config
 import knowledge_base
+import payment_methods
 import rates
 import store
 import whatsapp_client
@@ -20,15 +22,36 @@ TOOL_DEFS = [
         "name": "get_rate",
         "description": (
             "Look up the current buy/sell rate for an asset (a crypto symbol like "
-            "BTC/USDT/ETH, a gift card brand like 'Amazon Gift Card', or 'Zelle'/"
-            "'PayPal'). Always call this before quoting any rate — never state one "
-            "from memory. If it returns a TBD/placeholder rate, tell the customer "
-            "the team will confirm the exact rate for their request."
+            "BTC/USDT/ETH, or a gift card brand like 'Amazon Gift Card'). Always "
+            "call this before quoting any rate — never state one from memory. If "
+            "it returns a TBD/placeholder rate, tell the customer the team will "
+            "confirm the exact rate for their request."
         ),
         "input_schema": {
             "type": "object",
-            "properties": {"asset": {"type": "string", "description": "e.g. 'BTC', 'USDT', 'Amazon Gift Card', 'Zelle'"}},
+            "properties": {"asset": {"type": "string", "description": "e.g. 'BTC', 'USDT', 'Amazon Gift Card'"}},
             "required": ["asset"],
+        },
+    },
+    {
+        "name": "get_payment_instructions",
+        "description": (
+            "Look up where AT Exchange itself receives payment/assets for this side "
+            "of the trade: for a 'buy' (customer paying us), returns our bank "
+            "transfer details; for a 'sell' of a crypto asset, returns our wallet "
+            "address for that asset; for a 'sell' of a gift card, returns "
+            "instructions to send the code/photo in chat. Always call this and "
+            "relay the exact details back to the customer before calling "
+            "create_transaction_lead — never invent or remember an address/account "
+            "from a previous conversation, always look it up fresh."
+        ),
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "direction": {"type": "string", "enum": ["buy", "sell"]},
+                "asset": {"type": "string", "description": "e.g. 'BTC', 'USDT', 'Amazon Gift Card'"},
+            },
+            "required": ["direction", "asset"],
         },
     },
     {
@@ -36,10 +59,11 @@ TOOL_DEFS = [
         "description": (
             "Log a customer's transaction request as a pending lead and notify the "
             "owner for manual confirmation. Only call this after you've gathered "
-            "the asset, direction (buy or sell), amount, payment method, and "
-            "destination details, and the customer has confirmed they want to "
-            "proceed. This never completes a transaction — it only creates a "
-            "lead for the owner to review."
+            "the asset, direction, amount, told the customer our payment/receiving "
+            "details via get_payment_instructions, collected the customer's own "
+            "payout details, and the customer has confirmed they want to proceed. "
+            "This never completes a transaction — it only creates a lead for the "
+            "owner to review."
         ),
         "input_schema": {
             "type": "object",
@@ -53,19 +77,27 @@ TOOL_DEFS = [
                         "to receive the asset."
                     ),
                 },
-                "asset": {"type": "string", "description": "e.g. 'BTC', 'USDT', 'Amazon Gift Card ($100)', 'Zelle', 'PayPal'"},
-                "amount": {"type": "string", "description": "e.g. '500 USDT', '$200 Amazon gift card', '$150 via Zelle'"},
+                "asset": {"type": "string", "description": "e.g. 'BTC', 'USDT', 'Amazon Gift Card ($100)'"},
+                "amount": {"type": "string", "description": "e.g. '500 USDT', '$200 Amazon gift card'"},
                 "payment_method": {
                     "type": "string",
-                    "description": "How the customer will pay or be paid, e.g. 'bank transfer', 'Zelle', 'PayPal', 'crypto wallet'",
+                    "description": (
+                        "Short label for which of our channels this used, e.g. 'bank transfer', "
+                        "'USDT wallet (TRC20)', 'gift card code via chat' — taken from what "
+                        "get_payment_instructions returned."
+                    ),
                 },
-                "destination_details": {
+                "customer_payout_details": {
                     "type": "string",
-                    "description": "Where funds/asset should be sent — wallet address, bank account, PayPal/Zelle email or phone, etc.",
+                    "description": (
+                        "Where WE send the customer their side of the trade — their crypto "
+                        "wallet address if buying crypto, their bank account if being paid out "
+                        "in cash, or 'gift card code delivered in this chat' if buying a gift card."
+                    ),
                 },
                 "notes": {"type": "string", "description": "Anything else relevant, e.g. gift card region, urgency."},
             },
-            "required": ["direction", "asset", "amount", "payment_method", "destination_details"],
+            "required": ["direction", "asset", "amount", "payment_method", "customer_payout_details"],
         },
     },
     {
@@ -73,7 +105,7 @@ TOOL_DEFS = [
         "description": (
             "Search business FAQs/policies (supported assets, limits, processing "
             "time, verification requirements, etc.) for an answer. Call this "
-            "before answering any question that isn't a rate lookup or an "
+            "before answering any question that isn't a rate/payment lookup or an "
             "existing transaction status."
         ),
         "input_schema": {
@@ -111,7 +143,7 @@ def _notify_owner_new_lead(lead: dict) -> None:
         f"Customer: {lead['customer_phone']}\n"
         f"{direction_label}: {lead['amount']} ({lead['asset']})\n"
         f"Payment method: {lead['payment_method']}\n"
-        f"Destination/details: {lead['destination_details']}\n"
+        f"Customer payout details: {lead['customer_payout_details']}\n"
         + (f"Notes: {lead['notes']}\n" if lead.get("notes") else "")
         + f"\nReply: confirm {lead['lead_id']} | reject {lead['lead_id']} <reason>"
     )
@@ -126,6 +158,9 @@ def dispatch(name: str, tool_input: dict, phone: str) -> dict:
             return {"found": False, "note": "No rate on file for that asset — tell the customer you'll confirm and get back to them."}
         return {"found": True, "rate": rate, "is_placeholder": rates.is_placeholder(rate.get("buy")) or rates.is_placeholder(rate.get("sell"))}
 
+    if name == "get_payment_instructions":
+        return payment_methods.get_payment_instructions(tool_input["direction"], tool_input["asset"])
+
     if name == "create_transaction_lead":
         lead = store.create_lead(
             customer_phone=phone,
@@ -133,7 +168,7 @@ def dispatch(name: str, tool_input: dict, phone: str) -> dict:
             asset=tool_input["asset"],
             amount=tool_input.get("amount"),
             payment_method=tool_input.get("payment_method"),
-            destination_details=tool_input.get("destination_details"),
+            customer_payout_details=tool_input.get("customer_payout_details"),
             notes=tool_input.get("notes"),
         )
         _notify_owner_new_lead(lead)

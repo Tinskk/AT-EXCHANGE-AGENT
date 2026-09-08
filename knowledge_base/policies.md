@@ -9,9 +9,9 @@ from an automated mistake with real money.
 
 ## Payment proof
 
-For any transaction involving a bank transfer, Zelle, or PayPal payment, send
-a screenshot of the payment confirmation in this chat. For gift cards, send a
-clear photo of the front and back of the card (code visible).
+For any transaction involving a bank transfer payment, send a screenshot of
+the payment confirmation in this chat. For gift cards, send a clear photo of
+the front and back of the card (code visible).
 
 ## Cancellations
 

@@ -2,15 +2,16 @@
 
 ## How does a transaction work?
 
-You tell the agent what you want to buy or sell (crypto, a gift card, Zelle,
-or PayPal), confirm the details, and the agent logs it as a pending request.
-Our team reviews and confirms it, then you'll get a WhatsApp message once
-it's confirmed and again once it's completed.
+You tell the agent what you want to buy or sell (crypto or a gift card), the
+agent tells you exactly where to send your payment or asset (and where
+you'll receive your side of the trade), you confirm the details, and the
+agent logs it as a pending request. Our team reviews and confirms it, then
+you'll get a WhatsApp message once it's confirmed and again once it's completed.
 
 ## How long does a transaction take to process?
 
-TBD — confirm typical turnaround time per asset type (crypto vs. gift cards
-vs. Zelle/PayPal) and note it here.
+TBD — confirm typical turnaround time per asset type (crypto vs. gift cards)
+and note it here.
 
 ## Is there a minimum or maximum amount?
 

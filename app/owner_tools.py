@@ -13,6 +13,7 @@ result back to report.
 
 from __future__ import annotations
 
+import payment_methods
 import rates
 import store
 import whatsapp_client
@@ -79,7 +80,7 @@ TOOL_DEFS = [
     },
     {
         "name": "set_rate",
-        "description": "Set the buy/sell rate for one asset (single-word asset names, e.g. 'BTC', 'USDT', 'Zelle').",
+        "description": "Set the buy/sell rate for one asset (single-word asset names, e.g. 'BTC', 'USDT').",
         "input_schema": {
             "type": "object",
             "properties": {
@@ -88,6 +89,37 @@ TOOL_DEFS = [
                 "sell": {"type": "string"},
             },
             "required": ["asset", "buy", "sell"],
+        },
+    },
+    {
+        "name": "get_payment_methods",
+        "description": "List AT Exchange's current payment/receiving details — the bank account customers pay into for buys, and the crypto wallet addresses customers send to for sells.",
+        "input_schema": {"type": "object", "properties": {}},
+    },
+    {
+        "name": "set_fiat_receiving_details",
+        "description": "Set the bank account customers pay into when buying crypto/gift cards from us.",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "bank_name": {"type": "string"},
+                "account_name": {"type": "string"},
+                "account_number": {"type": "string"},
+            },
+            "required": ["bank_name", "account_name", "account_number"],
+        },
+    },
+    {
+        "name": "set_crypto_receiving_address",
+        "description": "Set our wallet address for receiving a crypto asset when a customer sells it to us (single-word asset name, e.g. 'BTC', 'USDT').",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "asset": {"type": "string"},
+                "network": {"type": "string", "description": "e.g. 'TRC20', 'ERC20', 'Bitcoin mainnet'"},
+                "address": {"type": "string"},
+            },
+            "required": ["asset", "network", "address"],
         },
     },
 ]
@@ -135,5 +167,20 @@ def dispatch(name: str, tool_input: dict) -> dict:
     if name == "set_rate":
         result = rates.set_rate(tool_input["asset"], tool_input["buy"], tool_input["sell"])
         return {"ok": True, "rate": result}
+
+    if name == "get_payment_methods":
+        return {"payment_methods": payment_methods.list_payment_methods()}
+
+    if name == "set_fiat_receiving_details":
+        result = payment_methods.set_fiat_receiving_details(
+            tool_input["bank_name"], tool_input["account_name"], tool_input["account_number"]
+        )
+        return {"ok": True, "receive_fiat_for_buys": result}
+
+    if name == "set_crypto_receiving_address":
+        result = payment_methods.set_crypto_receiving_address(
+            tool_input["asset"], tool_input["network"], tool_input["address"]
+        )
+        return {"ok": True, "receiving_address": result}
 
     return {"error": f"unknown tool: {name}"}

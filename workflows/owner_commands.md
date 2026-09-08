@@ -1,20 +1,23 @@
-# Managing leads and rates as the owner
+# Managing leads, rates, and payment methods as the owner
 
 **Objective:** Reference for how you (or any staff number listed in
-`OWNER_WHATSAPP_NUMBERS`) manage transaction leads and rates — entirely by
-chatting naturally on WhatsApp, no dashboard and no fixed command syntax needed.
+`OWNER_WHATSAPP_NUMBERS`) manage transaction leads, rates, and AT Exchange's
+own payment/receiving details — entirely by chatting naturally on WhatsApp,
+no dashboard and no fixed command syntax needed.
 
-**When to run:** Any time a new lead comes in, or you need to update a rate.
+**When to run:** Any time a new lead comes in, a rate changes, or a bank
+account/wallet address needs updating.
 
 ## How it works
 
 Messages from a number listed in `OWNER_WHATSAPP_NUMBERS` are routed to a
 second Claude agent (`app/owner_agent.py`), separate from the customer-facing
-one — it has its own system prompt and its own tool set
-(`app/owner_tools.py`: `list_open_leads`, `get_lead`, `confirm_lead`,
-`complete_lead`, `reject_lead`, `get_rates`, `set_rate`). You talk to it the
-same way you'd talk to a staff member over chat; it looks up the real lead
-before acting, and always tells you exactly what it did.
+one — it has its own system prompt and its own tool set (`app/owner_tools.py`:
+`list_open_leads`, `get_lead`, `confirm_lead`, `complete_lead`, `reject_lead`,
+`get_rates`, `set_rate`, `get_payment_methods`, `set_fiat_receiving_details`,
+`set_crypto_receiving_address`). You talk to it the same way you'd talk to a
+staff member over chat; it looks up the real lead before acting, and always
+tells you exactly what it did.
 
 You don't need to memorize any syntax — just describe what you want:
 
@@ -25,6 +28,15 @@ You don't need to memorize any syntax — just describe what you want:
 - "mark LD7 as done"
 - "what's the current BTC rate?"
 - "set BTC buy 1.5m sell 1.55m"
+- "what's our current payment info?"
+- "set our bank account to Access Bank, 0123456789, AT Exchange Ltd"
+- "set our USDT wallet to TXyz... on TRC20"
+
+Because a wrong bank account or wallet address means a customer's money/crypto
+goes somewhere unrecoverable, the agent will read the full details back to
+you and wait for an explicit yes before saving a payment method change —
+don't be surprised if it double-checks before something else would've just
+acted.
 
 If your description could match more than one open lead, the agent will list
 the candidates and ask you to pick rather than guessing — respond with the

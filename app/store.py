@@ -40,7 +40,7 @@ CREATE TABLE IF NOT EXISTS leads (
     asset TEXT NOT NULL,
     amount TEXT,
     payment_method TEXT,
-    destination_details TEXT,
+    customer_payout_details TEXT,
     notes TEXT,
     status TEXT NOT NULL DEFAULT 'pending',
     created_at TEXT NOT NULL,
@@ -126,7 +126,7 @@ def create_lead(
     asset: str,
     amount: str | None,
     payment_method: str | None,
-    destination_details: str | None,
+    customer_payout_details: str | None,
     notes: str | None,
 ) -> dict:
     now = datetime.now(timezone.utc).isoformat()
@@ -135,10 +135,10 @@ def create_lead(
             """
             INSERT INTO leads (
                 customer_phone, direction, asset, amount, payment_method,
-                destination_details, notes, status, created_at, updated_at
+                customer_payout_details, notes, status, created_at, updated_at
             ) VALUES (?, ?, ?, ?, ?, ?, ?, 'pending', ?, ?)
             """,
-            (customer_phone, direction, asset, amount, payment_method, destination_details, notes, now, now),
+            (customer_phone, direction, asset, amount, payment_method, customer_payout_details, notes, now, now),
         )
         lead_id = cursor.lastrowid
         row = conn.execute("SELECT * FROM leads WHERE id = ?", (lead_id,)).fetchone()
