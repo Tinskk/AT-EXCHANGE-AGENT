@@ -70,7 +70,8 @@ def selftest(token: str | None = None) -> dict:
         send_result = whatsapp_client.send_text(owner, "DEBUG SELFTEST: direct WhatsApp send check.")
         result["whatsapp_send"] = {"ok": True, "response": send_result}
     except Exception as e:  # noqa: BLE001
-        result["whatsapp_send"] = {"ok": False, "error": f"{type(e).__name__}: {e}"}
+        body = getattr(getattr(e, "response", None), "text", None)
+        result["whatsapp_send"] = {"ok": False, "error": f"{type(e).__name__}: {e}", "response_body": body}
 
     try:
         store.get_history("debug-selftest-phone")
