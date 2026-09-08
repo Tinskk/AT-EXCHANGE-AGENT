@@ -9,6 +9,7 @@ are just process environment variables set in the dashboard.
 from __future__ import annotations
 
 import os
+import shutil
 import sys
 from pathlib import Path
 
@@ -51,8 +52,39 @@ OWNER_WHATSAPP_NUMBERS = [
 BUSINESS_NAME = os.getenv("BUSINESS_NAME", "AT Exchange")
 MAX_HISTORY_TURNS = 20
 KNOWLEDGE_BASE_DIR = ROOT / "knowledge_base"
-RATES_PATH = ROOT / "data" / "rates.json"
-PAYMENT_METHODS_PATH = ROOT / "data" / "payment_methods.json"
+
+# --- Live-editable data (rates, payment methods) ---
+# `data/*.json` in the repo is only the SEED — the values as of the last git
+# commit. The actual read/write path the app uses is PERSISTENT_DATA_DIR,
+# which defaults to the same repo folder for local dev (so nothing changes
+# there), but on Render is pointed at the persistent disk (see render.yaml)
+# so that rates/payment methods set live via the owner WhatsApp chat survive
+# a redeploy instead of being silently reset back to whatever's in git.
+# Learned the hard way: only AGENT_DB_PATH was on the persistent disk
+# originally, so a routine `git push` (any code change, not just a rate
+# change) would blow away live-edited wallet addresses on the next deploy.
+_SEED_DATA_DIR = ROOT / "data"
+PERSISTENT_DATA_DIR = Path(os.getenv("PERSISTENT_DATA_DIR") or _SEED_DATA_DIR)
+RATES_PATH = PERSISTENT_DATA_DIR / "rates.json"
+PAYMENT_METHODS_PATH = PERSISTENT_DATA_DIR / "payment_methods.json"
+
+
+def _seed_if_missing(target: Path, seed_name: str) -> None:
+    """Copy the git-tracked seed file to the persistent location, but only
+    the first time (i.e. only if the persistent copy doesn't exist yet) —
+    once it exists, it's the live source of truth and must never be
+    overwritten by a redeploy."""
+    if target.exists() or target.resolve() == (_SEED_DATA_DIR / seed_name).resolve():
+        return
+    seed = _SEED_DATA_DIR / seed_name
+    if not seed.exists():
+        return
+    target.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copy(seed, target)
+
+
+_seed_if_missing(RATES_PATH, "rates.json")
+_seed_if_missing(PAYMENT_METHODS_PATH, "payment_methods.json")
 
 # Anchored to app/ by default so it's correct regardless of the process's cwd
 # (Render's rootDir, local `cd app && uvicorn ...`, etc.). Override with an

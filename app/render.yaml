@@ -32,3 +32,5 @@ services:
         value: AT Exchange
       - key: AGENT_DB_PATH
         value: /var/data/agent.db
+      - key: PERSISTENT_DATA_DIR
+        value: /var/data
