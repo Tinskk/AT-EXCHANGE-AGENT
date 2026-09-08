@@ -42,9 +42,10 @@ TOOL_DEFS = [
     {
         "name": "confirm_lead",
         "description": (
-            "Mark a lead confirmed and notify the customer it's being processed. "
-            "Only call this on a lead ID you've verified via list_open_leads or get_lead — "
-            "never guess an ID from the owner's description alone."
+            "Mark a lead confirmed, meaning it's been reviewed and is being processed. "
+            "Notifies the customer it's confirmed, nothing more. Only call this on a lead ID "
+            "you've verified via list_open_leads or get_lead, never guess an ID from the "
+            "owner's description alone."
         ),
         "input_schema": {
             "type": "object",
@@ -54,7 +55,12 @@ TOOL_DEFS = [
     },
     {
         "name": "complete_lead",
-        "description": "Mark a lead completed and notify the customer the transaction is done.",
+        "description": (
+            "Mark a lead completed. Use this once the owner has actually sent the money or "
+            "the asset, not just approved the request. Notifies the customer they've been "
+            "paid (if they were selling to us) or that their asset is on its way (if they "
+            "were buying from us), based on the lead's direction."
+        ),
         "input_schema": {
             "type": "object",
             "properties": {"lead_id": {"type": "string"}},
@@ -68,7 +74,7 @@ TOOL_DEFS = [
             "type": "object",
             "properties": {
                 "lead_id": {"type": "string"},
-                "reason": {"type": "string", "description": "Why it's being rejected — this is sent to the customer verbatim."},
+                "reason": {"type": "string", "description": "Why it's being rejected. This gets sent to the customer as-is."},
             },
             "required": ["lead_id", "reason"],
         },
@@ -126,13 +132,23 @@ TOOL_DEFS = [
 
 _CUSTOMER_MESSAGES = {
     "confirmed": "✅ Your transaction ({lead_id}) has been confirmed and is being processed.",
-    "completed": "🎉 Your transaction ({lead_id}) has been completed. Thank you for using {business}!",
-    "rejected": "❌ Your transaction ({lead_id}) could not be processed. Reason: {reason}",
+    "rejected": "❌ Your transaction ({lead_id}) couldn't be processed. Reason: {reason}",
+}
+
+# "completed" is direction-aware: a sell means we paid the customer, a buy
+# means we sent them their asset. Two different things to actually say.
+_COMPLETED_MESSAGES = {
+    "sell": "💸 You've been paid! Your {asset} transaction ({lead_id}) is complete. Thanks for using {business}.",
+    "buy": "✅ Your {asset} is on its way! Transaction ({lead_id}) is complete. Thanks for using {business}.",
 }
 
 
 def _notify_customer(lead: dict, status: str, reason: str | None = None) -> None:
-    text = _CUSTOMER_MESSAGES[status].format(lead_id=lead["lead_id"], business=BUSINESS_NAME, reason=reason)
+    if status == "completed":
+        template = _COMPLETED_MESSAGES.get(lead["direction"], _COMPLETED_MESSAGES["sell"])
+        text = template.format(lead_id=lead["lead_id"], business=BUSINESS_NAME, asset=lead["asset"])
+    else:
+        text = _CUSTOMER_MESSAGES[status].format(lead_id=lead["lead_id"], business=BUSINESS_NAME, reason=reason)
     whatsapp_client.send_text(lead["customer_phone"], text)
 
 

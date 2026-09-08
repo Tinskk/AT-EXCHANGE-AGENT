@@ -19,24 +19,33 @@ one — it has its own system prompt and its own tool set (`app/owner_tools.py`:
 staff member over chat; it looks up the real lead before acting, and always
 tells you exactly what it did.
 
-You don't need to memorize any syntax — just describe what you want:
+You don't need to memorize any syntax, just describe what you want. It also
+talks back in plain English, not technical terms, so it'll never mention
+tool names or say things like "I called confirm_lead."
 
 - "confirm LD7"
 - "go ahead and confirm the USDT order for that Lagos number"
 - "what's still pending?"
 - "reject LD9, the screenshot doesn't match the amount"
-- "mark LD7 as done"
+- "I've paid the customer on LD7"
+- "sent the crypto for LD9"
 - "what's the current BTC rate?"
 - "set BTC buy 1.5m sell 1.55m"
 - "what's our current payment info?"
 - "set our bank account to Access Bank, 0123456789, AT Exchange Ltd"
 - "set our USDT wallet to TXyz... on TRC20"
 
+**Confirming a lead and completing it are two different steps.** Confirming
+just tells the customer their request is being processed. Completing means
+you've actually sent the money or the asset, and it's what triggers the
+"you've been paid" (for a sell) or "your asset is on its way" (for a buy)
+message. Don't say "done" or "paid" until the money/asset has actually moved.
+
 Because a wrong bank account or wallet address means a customer's money/crypto
 goes somewhere unrecoverable, the agent will read the full details back to
-you and wait for an explicit yes before saving a payment method change —
-don't be surprised if it double-checks before something else would've just
-acted.
+you in plain English and wait for a clear yes before saving a payment method
+change, don't be surprised if it double-checks before something else would've
+just acted.
 
 If your description could match more than one open lead, the agent will list
 the candidates and ask you to pick rather than guessing — respond with the
@@ -45,17 +54,18 @@ lead ID it should act on.
 ## Example
 
 You send: `confirm the USDT one, 500 units`
-Agent (after calling `list_open_leads` and finding one match) replies:
-`Confirmed LD7 (sell 500 USDT, customer 2348012345678) — customer notified.`
+Agent replies something like: `Confirmed that USDT order for 2348012345678, they've been told it's being processed.`
 Customer receives: `✅ Your transaction (LD7) has been confirmed and is being processed.`
 
-Later, once you've actually sent the payout: `mark LD7 done`
-Customer receives: `🎉 Your transaction (LD7) has been completed. Thank you for using AT Exchange!`
+Later, once you've actually sent the payout: `I've paid them`
+Agent replies something like: `Got it, that USDT order is marked complete and the customer's been told they've been paid.`
+Customer receives (this was a sell): `💸 You've been paid! Your USDT transaction (LD7) is complete. Thanks for using AT Exchange.`
 
-If your description is ambiguous, e.g. two open USDT leads:
-Agent replies: `Two open USDT leads match — which one? LD7: 500 USDT, customer
-2348012345678, pending. LD9: 200 USDT, customer 2347099998888, pending.`
-You reply: `LD7`
+If it had been a buy instead, the customer would get: `✅ Your USDT is on its way! Transaction (LD7) is complete. Thanks for using AT Exchange.`
+
+If your description is ambiguous, e.g. two open USDT leads, the agent will
+describe both in plain terms and ask which one you mean rather than guessing.
+You'd reply with whichever one it is (a lead ID, or just "the Lagos one").
 
 ## Edge cases
 
@@ -81,7 +91,12 @@ You reply: `LD7`
 ## Notes & learnings
 
 - _(2026-09-08) Created as a fixed-command reference._
-- _(2026-09-08) Rewritten — the owner side moved from a deterministic string
+- _(2026-09-08) Rewritten, the owner side moved from a deterministic string
   parser to a conversational Claude agent (`owner_agent.py`/`owner_tools.py`),
   same pattern as the customer-facing agent, so the owner never has to
   memorize exact syntax._
+- _(2026-09-08) Split confirm from complete more clearly: confirm just
+  acknowledges a request, complete is specifically for when the owner has
+  actually paid the customer or sent their asset, and the customer message
+  now differs by direction (paid vs. asset sent). Also tightened the system
+  prompt so the agent never names a tool/function out loud to the owner._
