@@ -10,13 +10,16 @@ from an automated mistake with real money.
 ## Payment proof
 
 For any transaction involving a bank transfer payment, send a screenshot of
-the payment confirmation in this chat. For gift cards, send a clear photo of
-the front and back of the card (code visible).
+the payment confirmation in this chat. For gift cards, send both the card
+code (typed in chat) and a clear photo of the front and back of the card
+(code visible) before the lead is logged, both are required to verify the
+card before the team confirms the transaction.
 
 ## Cancellations
 
-TBD, confirm the cancellation policy (can a customer cancel a pending
-request before it's confirmed? after?) and note it here.
+There's no self-service cancellation. If a customer wants to cancel a
+pending request, flag it to the owner (same as a dispute) rather than
+telling them it's cancelled yourself, it's the owner's call case by case.
 
 ## Disputes
 
@@ -34,6 +37,4 @@ request looks unfamiliar, stop and ask before sending anything.
 
 ## Not yet finalized, confirm with the business owner, don't guess
 
-- Cancellation policy for pending vs. confirmed requests
 - Dispute/refund policy and timelines
-- Any identity verification (KYC) requirements

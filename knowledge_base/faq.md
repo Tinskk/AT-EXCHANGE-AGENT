@@ -10,18 +10,21 @@ you'll get a WhatsApp message once it's confirmed and again once it's completed.
 
 ## How long does a transaction take to process?
 
-TBD, confirm typical turnaround time per asset type (crypto vs. gift cards)
-and note it here.
+Crypto is fast, usually just minutes once the team confirms your request.
+Gift cards take a bit longer since the code needs to be manually verified
+before payout.
 
 ## Is there a minimum or maximum amount?
 
-TBD, confirm min/max limits per asset and note them here.
+No minimum or maximum right now, any amount is fine.
 
 ## What happens after I send my payment or gift card code?
 
-Send a photo of your payment confirmation or the gift card (front and back,
-code visible) directly in this chat. It's automatically forwarded to our
-team along with your request.
+For a bank transfer payment, send a screenshot of the payment confirmation
+directly in this chat. For a gift card, send both the code itself (typed in
+chat) and a clear photo of the card (front and back, code visible). All of
+this is automatically forwarded to our team so they can verify it against
+your request before confirming.
 
 ## How do I check on a pending request?
 
@@ -35,8 +38,7 @@ for your request before anything is finalized.
 
 ## Do you require identity verification?
 
-TBD, confirm whether/when ID verification (KYC) is required, e.g. above a
-certain transaction size, and note the process here.
+No, we don't require ID verification right now.
 
 ---
 
@@ -45,8 +47,5 @@ certain transaction size, and note the process here.
 These come up often enough to flag here, but the exact answer hasn't been
 set yet. If asked, say you'll confirm and get back to them:
 
-- Exact processing time SLAs per asset type
-- Minimum/maximum transaction limits
-- Identity verification (KYC) requirements and thresholds
 - Refund/dispute policy if a transaction goes wrong
 - Support hours / when a human is available vs. only the agent

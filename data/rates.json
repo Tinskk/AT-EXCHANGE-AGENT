@@ -1,9 +1,37 @@
 {
-  "BTC": { "buy": "TBD", "sell": "TBD" },
-  "USDT": { "buy": "TBD", "sell": "TBD" },
-  "ETH": { "buy": "TBD", "sell": "TBD" },
-  "SOL": { "buy": "TBD", "sell": "TBD" },
-  "Amazon Gift Card": { "buy": "TBD", "sell": "TBD" },
-  "Steam Gift Card": { "buy": "TBD", "sell": "TBD" },
-  "iTunes Gift Card": { "buy": "TBD", "sell": "TBD" }
+  "BTC": {
+    "buy": "₦117,200,000",
+    "sell": "₦124,500,000",
+    "updated_at": "2026-09-08T00:00:00+00:00"
+  },
+  "USDT": {
+    "buy": "₦1,475",
+    "sell": "₦1,565",
+    "updated_at": "2026-09-08T00:00:00+00:00"
+  },
+  "ETH": {
+    "buy": "₦3,685,000",
+    "sell": "₦3,915,000",
+    "updated_at": "2026-09-08T00:00:00+00:00"
+  },
+  "SOL": {
+    "buy": "₦152,500",
+    "sell": "₦162,000",
+    "updated_at": "2026-09-08T00:00:00+00:00"
+  },
+  "Amazon Gift Card": {
+    "buy": "₦700/$1 face value",
+    "sell": "₦850/$1 face value",
+    "updated_at": "2026-09-08T00:00:00+00:00"
+  },
+  "Steam Gift Card": {
+    "buy": "₦860/$1 face value",
+    "sell": "₦1,000/$1 face value",
+    "updated_at": "2026-09-08T00:00:00+00:00"
+  },
+  "iTunes Gift Card": {
+    "buy": "₦900/$1 face value",
+    "sell": "₦1,080/$1 face value",
+    "updated_at": "2026-09-08T00:00:00+00:00"
+  }
 }

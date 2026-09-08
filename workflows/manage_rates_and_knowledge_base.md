@@ -74,3 +74,12 @@ reflects your edit.
 - _(2026-09-08) Added payment methods section; rate/payment-method updates
   moved from a fixed WhatsApp command syntax to the conversational owner
   agent (`owner_agent.py`/`owner_tools.py`)._
+- _(2026-09-08) Seeded `data/rates.json` with real starting numbers (BTC,
+  USDT, ETH, SOL, and the three gift card brands) pulled from public market
+  data (Binance P2P USDT/NGN, spot crypto prices, typical Nigerian gift card
+  resale rates) with a standard buy/sell spread applied. These are a
+  starting point the owner should check against the live market and adjust
+  via the owner agent, not a permanent number, crypto and gift card rates
+  move daily. Wallet addresses in `data/payment_methods.json` are still TBD
+  since those can only come from the owner, never invent one, a wrong
+  address means unrecoverable funds._
