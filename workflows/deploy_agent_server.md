@@ -40,13 +40,17 @@ mostly a first-time setup).
    `BUSINESS_NAME`. Never commit these — they only live in `.env` locally and
    in Render's dashboard.
 
-4. **Add a persistent disk before going live with real transactions** —
-   `app/store.py`'s SQLite file (conversation memory, dedupe, and the leads
-   table) lives on Render's default *ephemeral* disk, which resets on every
-   redeploy/restart. That's fine for early testing, but the leads table is
-   the actual transaction record here — attach Render's persistent disk
-   add-on (or migrate to an external DB) mounted at the path
-   `AGENT_DB_PATH` points to before relying on this for real money.
+4. **Confirm the persistent disk actually attached.** `app/render.yaml`
+   declares a 1GB disk mounted at `/var/data`, with `AGENT_DB_PATH` pointing
+   at `/var/data/agent.db`, so `app/store.py`'s SQLite file (conversation
+   memory, dedupe, and the leads table, the actual transaction record here)
+   survives redeploys instead of living on Render's default ephemeral disk.
+   If the service was created *before* this was added to `render.yaml`,
+   Render's Blueprint sync doesn't always retrofit a disk onto an existing
+   service automatically — check the service's **Disks** tab in the Render
+   dashboard. If nothing's listed there, add one manually: **Disks** → **Add
+   Disk** → name it, mount path `/var/data`, size 1GB, then confirm
+   `AGENT_DB_PATH` is set to `/var/data/agent.db` in the Environment tab.
 
 5. **Deploy and confirm health** — once the build finishes,
    `curl https://<your-app>.onrender.com/health` should return
@@ -56,8 +60,8 @@ mostly a first-time setup).
    `setup_meta_whatsapp_cloud_api.md`.
 
 7. **Send a real test message**, place a test transaction request, confirm
-   the owner number receives the lead notification, then send `confirm LD<n>`
-   from the owner number and confirm the customer receives the confirmation.
+   the owner number receives the lead notification, then tell the owner
+   agent to confirm it and confirm the customer receives the confirmation.
 
 ## Output
 
@@ -73,10 +77,12 @@ Meta's webhook, responding to real WhatsApp messages and owner commands.
 - **Webhook verification fails after deploy:** confirm `/health` works first
   (proves the service is up), then re-check `WHATSAPP_VERIFY_TOKEN` matches
   exactly between Render's env vars and Meta's webhook config.
-- **Redeploy resets conversation memory AND leads:** expected on the default
-  ephemeral disk — see step 4. This is a bigger deal here than in a typical
-  chatbot because leads are real pending money transactions, not just chat
-  history.
+- **Redeploy resets conversation memory AND leads:** this was a real issue
+  hit during initial setup, caused by the service running on Render's
+  default ephemeral disk before the persistent disk in step 4 existed. If
+  leads still disappear after a redeploy with the disk attached, check that
+  `AGENT_DB_PATH` is actually set to a path under `/var/data` (the mount
+  path), not the local default.
 - **Blueprint deploy fails immediately, "render.yaml not found":** set
   **Blueprint Path** to `app/render.yaml` explicitly when creating the Blueprint.
 - **First deploy after Blueprint creation fails:** expected if you haven't
@@ -98,6 +104,12 @@ Meta's webhook, responding to real WhatsApp messages and owner commands.
 
 ## Notes & learnings
 
-- _(2026-09-08) Created — forked from the Tinsk Threads agent's deploy
+- _(2026-09-08) Created, forked from the Tinsk Threads agent's deploy
   workflow; added the persistent-disk warning since leads (not a Sheet) are
   the system of record in this build._
+- _(2026-09-08) Hit the predicted issue for real: a lead created during
+  testing vanished after the next push auto-redeployed the service, because
+  the disk hadn't been added yet. Fixed by adding the `disk` block to
+  `app/render.yaml` and pointing `AGENT_DB_PATH` at it. Confirm the disk
+  actually attached to the existing service (see step 4) rather than
+  assuming the render.yaml change alone was enough._

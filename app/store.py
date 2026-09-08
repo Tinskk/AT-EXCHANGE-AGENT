@@ -1,13 +1,11 @@
 """SQLite-backed webhook dedupe, short-term conversation memory, and the
 transaction leads table.
 
-Known tradeoff: on Render's default disk this file does not survive a
-redeploy or restart, which resets conversation memory, dedupe state, and the
-leads table. Acceptable for v1 given short, transactional WhatsApp chats —
-but note that leads ARE the system of record here (there's no Sheets backup
-in this build), so an ephemeral disk means real transaction history could be
-lost on redeploy. Use a persistent disk (Render's paid persistent disk add-on,
-or an external DB) before relying on this for real transaction volume.
+Lives on Render's persistent disk (see app/render.yaml's `disk` block and
+AGENT_DB_PATH=/var/data/agent.db), not the default ephemeral one, so leads
+survive redeploys. This matters more here than in a typical chatbot: leads
+are the actual system of record for real transactions, and there's no
+Sheets backup in this build.
 """
 
 from __future__ import annotations
