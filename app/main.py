@@ -38,50 +38,6 @@ def health() -> dict:
     return {"status": "ok"}
 
 
-@app.get("/debug/selftest")
-def selftest(token: str | None = None) -> dict:
-    """TEMPORARY diagnostic route — gated by WHATSAPP_VERIFY_TOKEN so it's not
-    publicly callable. Runs each step of the message pipeline synchronously
-    (unlike the real webhook flow, which fires it via BackgroundTasks and
-    swallows exceptions into the server log we can't see from here) and
-    reports exactly which step fails. Remove once the live-message issue is
-    diagnosed — this is not meant to stay in the deployed app.
-    """
-    if token != config.WHATSAPP_VERIFY_TOKEN:
-        return JSONResponse({"error": "forbidden"}, status_code=403)
-
-    result: dict = {}
-
-    try:
-        from anthropic import Anthropic
-
-        client = Anthropic(api_key=config.ANTHROPIC_API_KEY)
-        resp = client.messages.create(
-            model=config.ANTHROPIC_MODEL,
-            max_tokens=16,
-            messages=[{"role": "user", "content": "Reply with exactly: OK"}],
-        )
-        result["anthropic"] = {"ok": True, "reply": "".join(b.text for b in resp.content if b.type == "text")}
-    except Exception as e:  # noqa: BLE001 — diagnostic route, want the raw error
-        result["anthropic"] = {"ok": False, "error": f"{type(e).__name__}: {e}"}
-
-    try:
-        owner = config.OWNER_WHATSAPP_NUMBERS[0]
-        send_result = whatsapp_client.send_text(owner, "DEBUG SELFTEST: direct WhatsApp send check.")
-        result["whatsapp_send"] = {"ok": True, "response": send_result}
-    except Exception as e:  # noqa: BLE001
-        body = getattr(getattr(e, "response", None), "text", None)
-        result["whatsapp_send"] = {"ok": False, "error": f"{type(e).__name__}: {e}", "response_body": body}
-
-    try:
-        store.get_history("debug-selftest-phone")
-        result["store"] = {"ok": True}
-    except Exception as e:  # noqa: BLE001
-        result["store"] = {"ok": False, "error": f"{type(e).__name__}: {e}"}
-
-    return result
-
-
 @app.get("/webhook")
 def verify(request: Request):
     mode = request.query_params.get("hub.mode")
